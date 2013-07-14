@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src='source.js'></script>
+	</head>
+	<body>
+		<div id="abcd"> abcdfrg </div>
+		<div id="abc"> i will be remove in 1.5s. </div>
+		<input id="pwd" type="text" value="    abcd              " />
+		<input id="pwd1" type="text" value="    abcd              " />
+		<a id="href" href="ggfdsa" target="new">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</a>
+<hr>
+<input id="r1" checked="checked" name="R1" type="radio" value="V1" /><label for="r1">一天</label>
+<input id="r2" name="R1" type="radio" value="V2" /><label for="r2">多天</label>
+<hr>
+		<select id="ddlBeginHour">
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+			<option value="15">15</option>
+			<option value="16">16</option>
+			<option value="17">17</option>
+			<option value="18">18</option>
+			<option value="19" selected>19</option>
+			<option value="20">20</option>
+			<option value="21">21</option>
+		</select>
+		<div id="abbbbb"></div>
+		<script>
+
+			var showNodeName = function(){ alert(this.nodeName); }
+			var abcd = $("#abcd");
+
+			abcd.click(showNodeName);
+
+			setTimeout(function(){ abcd.css('backgroundColor','red'); }, 1000);
+			setTimeout(function(){ abcd.css({'backgroundColor':'yellow','fontSize':'40px'}); }, 2000);
+
+			setTimeout(function(){ abcd.append("<h1>I appended as a string</h1>"); }, 3000);
+			setTimeout(function(){ abcd.append($("<h1>I appended as a string</h1>")); }, 3000);
+			setTimeout(function(){ 
+				var o = document.createElement('h1');
+				o.innerHTML='I appended as a doc elem';
+				abcd.append(o); 
+			}, 4000);
+
+			console.log('[' + abcd.html() + ']'+' -> '+'[' + $.trim(abcd.html()) + ']');
+
+			pwd = $("#pwd");
+			console.log('[' + pwd.val() + ']');
+			console.log('[' + $.trim(pwd.val()) + ']');
+
+			pwd.focus();
+			// pwd.click(showNodeName);
+
+			pwd.change(function(){ alert(this.value); });
+			$("#pwd1").change(function(){ alert("1+"+this.value); });
+
+			setTimeout(function(){
+				pwd.val(" hijklmn     ");
+				console.log('[' + $.trim(pwd.val()) + ']');
+			}, 1000);
+
+			var href = $("#href");
+
+			href.click(showNodeName);
+
+			console.log(href.attr("href"));
+			href.attr("href",'222222222222');
+			console.log(href.attr("href"));
+
+			href.attr({ href   : "gg", target : "wahahah" });
+
+			setTimeout(function(){ $('#abc').remove(); }, 1500);
+
+			$("#ddlBeginHour").change(function(){ alert(123); });
+			console.log($("#ddlBeginHour").val());
+
+			setTimeout(function(){ $("#ddlBeginHour").empty() }, 15000);
+
+			var aaa = "<script>alert(123);<\/script><h1>ABCDEFG<script>alert(456);<\/script></h1><div>HHHH<script>alert(555);<\/script></div>";
+
+			$("#abbbbb").html(aaa);
+			setTimeout(function(){ $("#abbbbb").hide(); }, 2000);
+			setTimeout(function(){ $("#abbbbb").show(); }, 4000);
+
+
+		</script>
+	</body>
+</html>

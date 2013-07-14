@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src='jquery.js'></script>
+		<script>
+
+			$(function(){
+				
+				// setTimeout(function(){$("#abcd").html("<html> <head> <title>AAAAAAAAAAA<\/title> <script>alert(123);<\/script> <\/head> <body> <h1>ABCDEFG<script>alert(456);<\/script></h1> <div>HHHH<script>alert(555);<\/script></div> </body> <\/html>");},2000);
+
+				function clean(){
+			
+					while ( this.firstChild ) {
+						this.removeChild( this.firstChild );
+					}
+					
+					return this;
+				};
+
+				var aaa = "<html> <head> <title>AAAAAAAAAAA<\/title> <script>alert(123);<\/script> <\/head> <body> <h1>ABCDEFG<script>alert(456);<\/script></h1> <div>HHHH<script>alert(555);<\/script></div> </body> <\/html>";
+
+				var frag = document.createDocumentFragment();
+				var span = document.createElement('span')
+				span.innerHTML = aaa;
+				var scripts = Array.prototype.slice.call(span.getElementsByTagName('script')).map(function(script){
+					return ( script.parentNode ? script.parentNode.removeChild( script ) : script );		
+				});
+
+				Array.prototype.slice.call(span.childNodes).forEach(function(elem){
+					frag.appendChild(elem);
+				});
+
+				clean.call(document.body.parentNode).appendChild(frag);
+
+				// scripts.forEach(function( data ){
+				// 	( window.execScript || function( data ) {
+				// 		window["eval"].call( window, data.text || data.textContent || data.innerHTML || "" );
+				// 	} )( data );
+				// });
+
+			});
+		</script>
+	</head>
+	<body>
+		<div id="abcd">AAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+		<script>alert(111);</script>
+	</body>
+</html>
