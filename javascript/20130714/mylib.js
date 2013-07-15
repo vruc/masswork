@@ -11,6 +11,10 @@
 
 	win.thin = {
 
+		log: function(msg){
+			console.log(msg);
+		},
+
 		define: function( name, dependencies, factory ){
 			
 			if( !moduleMap[name] ){
@@ -24,49 +28,72 @@
 			return moduleMap[name];
 		},
 
-		use: function(name) {
-		    var module = moduleMap[name];
-		    var argDecl = annotate(module.factory);
+		use: function(name){
+			
+			var module = moduleMap[name];
+			var argDecl = annotate(module.factory);
+			if(!module.entity){
+				var args = [], nss = {};
 
-		    if (!module.entity) {
-		        var args = [];
-		        for (var i=0; i<module.dependencies.length; i++) {
-		        	if(argDecl[i] != module.dependencies[i] ){
-						if(moduleMap[argDecl[i]].entity){
-							args.push(moduleMap[argDecl[i]].entity);
+				module.dependencies.forEach(function(item){
+					if(item.lastIndexOf('.')>-1){
+						var sp = item.split('.'), len = sp.length;
+						nss[sp[len-1]] = sp.slice(0, len-1).join('.');
+					}
+				});
+
+				for (var i = 0, l = module.dependencies.length; i < l; i++) {
+
+					var arg = argDecl[i], 
+						dep = module.dependencies[i],
+						key = isInObject(arg, nss);
+						
+					arg = key !== false ? [nss[key], key].join('.') : arg;
+
+
+					if(arg != dep ){
+						if(moduleMap[arg].entity){
+							args.push(moduleMap[arg].entity);
 						} else {
-							args.push(this.use(argDecl[i]));
+							args.push(this.use(arg));
 						}
 					}
-					else if (moduleMap[module.dependencies[i]].entity) {
-		                args.push(moduleMap[module.dependencies[i]].entity);
-		            }
-		            else {
-		                args.push(this.use(module.dependencies[i]));
-		            }
-		        }
-
-		        module.entity = module.factory.apply(noop, args);
-		    }
-
-		    return module.entity;
+					else if(dep.entity){
+						args.push(dep.entity);
+					} else {
+						args.push(this.use(dep));
+					}
+				};
+				module.entity = module.factory.apply(noop, args);
+			}
+			return module.entity;
 		},
 
 		use2: function(name){
 			
 			var module = moduleMap[name];
 			var argDecl = annotate(module.factory);
-			// console.log('use2', module.factory, annotate(module.factory));
-			// console.log(argDecl);
-
 			if(!module.entity){
-				var args = [];
+				var args = [], nss = {};
+
+				module.dependencies.forEach(function(item){
+					if(item.lastIndexOf('.')>-1){
+						var sp = item.split('.'), len = sp.length;
+						nss[sp[len-1]] = sp.slice(0, len-1).join('.');
+					}
+				});
+
 				for (var i = 0, l = module.dependencies.length; i < l; i++) {
-					if(argDecl[i] != module.dependencies[i] ){
-						if(moduleMap[argDecl[i]].entity){
-							args.push(moduleMap[argDecl[i]].entity);
+
+					var arg = argDecl[i], 
+						dep = module.dependencies[i];
+					arg = arg in nss ? [nss[arg], arg].join('.') : arg;
+
+					if(arg != module.dependencies[i] ){
+						if(moduleMap[arg].entity){
+							args.push(moduleMap[arg].entity);
 						} else {
-							args.push(this.use(argDecl[i]));
+							args.push(this.use(arg));
 						}
 					}
 					else if(module.dependencies[i].entity){
@@ -75,14 +102,10 @@
 						args.push(this.use(module.dependencies[i]));
 					}
 				};
-
 				module.entity = module.factory.apply(noop, args);
-
 			}
-
 			return module.entity;
 		}
-
 	};
 
 	var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
@@ -114,6 +137,13 @@
 	  }
 	  return $inject;
 	};	
+
+	function isInObject(key, obj){
+		for(var p in obj) {
+			if( key.toLowerCase() === p.toLowerCase() ) return p;
+		}
+		return false;
+	};
 
 	function forEach(array, callback){
 		array.forEach(function(item){ 

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<script src='mylib.js'></script>
+	<script>
+
+		thin.define('Math.PI', [], function() {
+			return Math.PI;
+		});
+
+		thin.define("shape.Circle", ['Math.PI'], function(pi){
+
+			var Circle = function(radius){
+				this.radius = radius;
+			};
+
+			Circle.prototype = {
+				area: function(){
+					return this.radius * this.radius * pi; 
+				}
+			};
+
+			return Circle;
+		});
+
+		thin.define('ShapeTypes', ['shape.Circle'], function(Circle){
+			return {
+				Circle: Circle
+			};	
+		});
+
+		thin.define('ShapeFactory', ['ShapeTypes'], function(ShapeTypes){
+			return {
+				getShape: function(type){
+					var shape;
+					switch (type){
+						case 'Circle':
+							shape = new ShapeTypes[type](arguments[1]);
+							break;
+						default:
+							break;
+					}
+					return shape;
+				}
+			};
+		});
+
+		// var circle = thin.use('shape.Circle');
+		// console.log(new circle(5).area());
+
+		var ShapeFactory = thin.use('ShapeFactory');
+		console.log( ShapeFactory.getShape('Circle',5).area() );
+
+
+		thin.define('IEatable', [], function(){
+			return true;
+		});
+
+		thin.define('Human', ['IEatable'], function(IEatable){
+			var human = function(name, age){
+				this.canEat = IEatable;
+				this.name = name;
+				this.age = age;
+			}
+			return human;
+		});
+
+		var man = thin.use('Human');
+		console.log( new man('chanruida', 27) );
+
+	</script>
+</html>

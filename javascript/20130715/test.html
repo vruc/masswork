@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+	<script src='../20130714/mylib.js'></script>
+	<div vm-model='Person'>
+		<input type='text' vm-value='name' />
+		<input type='text' vm-value='age' />
+		<input type='button' vm-click='growUp' value='Grow Up' />
+	</div>
+	<script>
+		// var person = {};
+
+		// Object.defineProperty(person, 'name', {
+		// 	set: function(value){
+		// 		this._name = value;
+		// 	},
+		// 	get: function(){
+		// 		return this._name;
+		// 	},
+		// 	enumerable: true,
+		// 	configurable: true
+		// });
+
+
+
+		// person.name = 'Cherry';
+		// console.log(person);
+
+		// person.name = 'Balalalal';
+		// console.log(person);
+
+
+		thin.define('Person', [], function(){
+			function Person(){
+				this.name = 'ChanRuiDa',
+				this.age = 27;
+			};
+			Person.prototype = {
+				growUp: function(){
+					this.age++;
+				}
+			};
+			return Person;
+		});
+
+		function parseElement(element, vm){
+			var model = vm;
+
+			if(element.getAttribute('vm-model')){
+				model = bindModel(element.getAttribute('vm-model'));
+			}
+			
+			Array.prototype.slice.call(element.attributes).forEach(function(attribute){
+				parseAttribute(element, attribute, model);
+			});
+
+			Array.prototype.slice.call(element.children).forEach(function(child){
+				parseElement(child, model);
+			});
+		};
+
+		function bindModel(modelName){
+			thin.log('model: '+ modelName);
+
+			var model = thin.use(modelName, true);
+			var instance = new model();
+
+			for(var p in Binder){
+				instance[p] = Binder[p];
+			}
+
+			instance.$watchers = {};
+			return instance;
+		};
+
+		function parseAttribute(element, attr, model){
+			if(attr.name.indexOf('vm-') == 0){
+				var type = attr.name.slice(3),
+					value = attr.value;
+				switch(type){
+					case 'init':
+						bindInit(element, value, model);
+						break;
+					case 'value':
+						bindValue(element, value, model);
+						break;
+					case 'click':
+						bindClick(element, value, model);
+						break;
+					case 'enable':
+						bindEnable(element, value, model, true);
+						break;
+					case 'disable':
+						bindEnable(element, value, model, false);
+						break;
+					case 'visible':
+						bindVisible(element, value, model, true);
+						break;
+					case 'invisible':
+						bindVisible(element, value, model, false);
+						break;
+					case 'element':
+						model[attr.value] = element;
+						break;
+					default:
+						break;						
+				}
+			}
+		};
+
+		function bindClick(element, key, model){
+
+		};
+		function bindValue(element, key, model){
+			thin.log('binding value: ' + key);
+
+			model.$watch(key, function(value, oldvalue){
+				element.value = value || '';
+			});
+
+			var timer;
+			element.onkeyup = function(){
+				clearTimeout(timer);
+				timer = setTimeout(function(){
+					thin.log('eveny: keyup');
+					thin.log('old Value: ' + model[key]);
+					model[key] = element.value;
+					thin.log('new value: ' + model[key]);
+				}, 500);
+			};
+
+			element.onpaste = function(){
+				thin.log('paste: ' + key);
+				model[key] = element.value;	
+			};
+
+			element.value = model[key];
+		};
+
+		var Binder = {
+			$watch : function(key, watcher){
+				if(!this.$watchers[key]){
+					this.$watchers[key] = {
+						value: this[key],
+						list: []
+					}
+
+					Object.defineProperty(this, key, {
+						set: function(value){
+							var oldValue = this.$watchers[key].value;
+
+							this.$watchers[key].value = value;
+
+							for(var i=0; i< this.$watchers[key].list.length; i++){
+								this.$watchers[key].list[i](value, oldValue)
+							}
+						},
+						get: function(){
+							return this.$watchers[key].value;
+						}
+					});
+
+					// var that = this;
+					// setInterval(function(){ console.log(that, that[key]); },2000);
+
+				}
+				this.$watchers[key].list.push(watcher);
+			}
+		};
+
+		parseElement(document.getElementsByTagName('div')[0]);
+
+	</script>	
+</html>

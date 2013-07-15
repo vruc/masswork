@@ -3,43 +3,124 @@
 	<script src='mylib.js'></script>
 	<script>
 
-		thin.define('A', [], function() { 
-			return 'AAAAAA';
-		});
+		// thin.define('A', [], function() { 
+		// 	return 'AAAAAA';
+		// });
 
-		thin.define('B', [], function(A) { 
-			return 'BBBBBB';
-		});
+		// thin.define('foo.A', [], function() { 
+		// 	return 'foo.AAAAAA';
+		// });
+		
+		// thin.define('foo.bar.AA', [], function() { 
+		// 	return 'foo.bar.AAAAAA';
+		// });
 
-		thin.define('C', [], function(A) { 
-			return 'CCCCCC';
-		});
+		// thin.define('B', [], function(A) { 
+		// 	return 'BBBBBB';
+		// });
 
-		thin.define("D1", ["A", "B", "C"], function(A, B, C) {
-		    return [A, B, C].join(' - ');
-		});
+		// thin.define('C', [], function(A) { 
+		// 	return 'CCCCCC';
+		// });
 
-		thin.define("D2", ["A", "B", "C"], function(B, A, C) {
-		    return [A, B, C].join(' - ');
-		});
+		// thin.define('D1', ['A', 'B', 'C'], function(A, B, C) {
+		//     return [A, B, C].join(' - ');
+		// });
 
-		thin.define("E1", ["A", "B", "C"], function(C, B, A) {
-		    return [A, B, C].join(' - ');
-		});
+		// thin.define('D2', ['A', 'B', 'C'], function(B, A, C) {
+		//     return [A, B, C].join(' - ');
+		// });
 
-		thin.define("E2", ["A", "B", "C"], function(C, B, A) {
-		    return [A, B, C].join(' - ');
-		});
+		// thin.define('E1', ['foo.A', 'B', 'C'], function(C, B, A) {
+		//     return [A, B, C].join(' - ');
+		// });
 
-		thin.use('A');
-		thin.use('B');
-		thin.use('C');
+		// thin.define('E2', ['foo.A', 'B', 'C'], function(C, A, B) {
+		//     return [A, B, C].join(' - ');
+		// });
 
-		console.log( thin.use('D1') );
-		console.log( thin.use('D2') );
+		// thin.define('foo.F1', ['B', 'C', 'foo.bar.AA', 'foo.A'], function(C, AA, B, A) {
+		//     return [C, B, A, AA].join(' - ');
+		// });
 
-		console.log( thin.use2('E1') );
-		console.log( thin.use2('E2') );
+		// thin.use('A');
+		// thin.use('B');
+		// thin.use('C');
+		// thin.use('foo.A');
+		// thin.use('foo.bar.AA');
 
+		// console.log( thin.use('D1') );
+		// console.log( thin.use('D2') );
+
+		// console.log( thin.use2('E1') );
+		// console.log( thin.use2('E2') );
+
+		// console.log( thin.use2('foo.F1') );
+
+
+thin.define("constant.PI", [], function() {
+    return 3.14159;
+});
+
+thin.define("shape.Circle", ["constant.PI"], function(pi) {
+    var Circle = function(r) {
+        this.r = r;
+    };
+
+    Circle.prototype = {
+        area : function() {
+            return pi * this.r * this.r;
+        }
+    }
+
+    return Circle;
+});
+
+thin.define("shape.Rectangle", [], function() {
+    var Rectangle = function(l, w) {
+        this.l = l;
+        this.w = w;
+    };
+
+    Rectangle.prototype = {
+        area: function() {
+            return this.l * this.w;
+        }
+    };
+
+    return Rectangle;
+});
+
+thin.define("ShapeTypes", ["shape.Circle", "shape.Rectangle"], function(Circle, Rectangle) {
+    return {
+        CIRCLE: Circle,
+        RECTANGLE: Rectangle
+    };
+});
+
+thin.define("ShapeFactory", ["ShapeTypes"], function(ShapeTypes) {
+    return {
+        getShape: function(type) {
+            var shape;
+
+            switch (type) {
+                case "CIRCLE": {
+                    shape = new ShapeTypes[type](arguments[1]);
+                    break;
+                }
+                case "RECTANGLE":  {
+                    shape = new ShapeTypes[type](arguments[1], arguments[2]);
+                    break;
+                }
+            }
+
+            return shape;
+        }
+    };
+});
+
+var ShapeFactory = thin.use("ShapeFactory");
+alert(ShapeFactory.getShape("CIRCLE", 5).area());
+alert(ShapeFactory.getShape("RECTANGLE", 3, 4).area());
 	</script>
 </html>
