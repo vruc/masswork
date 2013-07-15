@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<title>preload</title>
+	<script>
+
+		window.onload = function() {
+
+			(function () {
+
+				function preload(){
+					var xhr = new XMLHttpRequest();	
+					for (var i = 0, l = arguments.length; i < l; i++) {
+						xhr.open('GET', arguments[i]);
+						xhr.send('');
+						xhr = new XMLHttpRequest();	
+					};
+				};
+
+				preload('./alert.js', './alert.css');
+
+			})();
+
+			setTimeout(function() {
+
+				// reference to <head>
+				var head = document.getElementsByTagName('head')[0];
+
+				// a new CSS
+				var css = document.createElement('link');
+				css.type = "text/css";
+				css.rel  = "stylesheet";
+				css.href = "./alert.css";
+
+				// a new JS
+				var js  = document.createElement("script");
+				js.type = "text/javascript";
+				js.src  = "./alert.js";
+
+				var js2  = document.createElement("script");
+				js2.type = "text/javascript";
+				js2.src  = "./alert_more.js";
+
+				// preload JS and CSS
+				head.appendChild(css);
+				head.appendChild(js);
+				head.appendChild(js2);
+
+			}, 3000);
+
+		};
+
+	</script>
+	<h1>PreLoad</h1>
+</html>

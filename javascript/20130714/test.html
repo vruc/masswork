@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<script src='mylib.js'></script>
+	<script>
+
+		thin.define('A', [], function() { 
+			return 'AAAAAA';
+		});
+
+		thin.define('B', [], function(A) { 
+			return 'BBBBBB';
+		});
+
+		thin.define('C', [], function(A) { 
+			return 'CCCCCC';
+		});
+
+		thin.define("D1", ["A", "B", "C"], function(A, B, C) {
+		    return [A, B, C].join(' - ');
+		});
+
+		thin.define("D2", ["A", "B", "C"], function(B, A, C) {
+		    return [A, B, C].join(' - ');
+		});
+
+		thin.define("E1", ["A", "B", "C"], function(C, B, A) {
+		    return [A, B, C].join(' - ');
+		});
+
+		thin.define("E2", ["A", "B", "C"], function(C, B, A) {
+		    return [A, B, C].join(' - ');
+		});
+
+		thin.use('A');
+		thin.use('B');
+		thin.use('C');
+
+		console.log( thin.use('D1') );
+		console.log( thin.use('D2') );
+
+		console.log( thin.use2('E1') );
+		console.log( thin.use2('E2') );
+
+	</script>
+</html>
